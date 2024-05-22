@@ -24,8 +24,22 @@
             </div>
         </div>
     </header>
+    <!-- Affichage du titre -->
+    <h1><%= titre %></h1>
+    <!-- Affichage de la description -->
+    <p><%= description %></p>
+    <h2>Enseignants</h2>
+    <ul>
+        <!-- Affichage des enseignants  -->
+        <% enseignants.forEach(function(enseignant) { %>
+            <li><%= enseignant %></li>
+        <% }); %>
+    </ul>
+    <footer>
+        
+    </footer>
 
-    <section class="title">
+    <!-- <section class="title">
         <div class="box-container">
             <h1 class="heading">Titre du cours</h1>
             <p>Lorem ipsum dolor sit amet.</p>
@@ -41,10 +55,10 @@
                 <li></li>
             </ul>
         </div>
-    </section>
+    </section> -->
 
     <footer>
-        <span>Afficher le premier enseignant de la liste</span>
+        <!-- <span>Afficher le premier enseignant de la liste</span> -->
     </footer>
 </body>
 </html>
