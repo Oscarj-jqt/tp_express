@@ -1,16 +1,14 @@
+//Configuration de l'app et importations des modules nécessaires serveur express
 const mongoose = require('mongoose');
-const User = require('./user');
+const collection = require('./user');
 const express = require('express');
-
-const app = express();
-const port = 3000;
-const bodyParser = require('body-parser');
 const path = require('path');
+const app = express();
 
+//Conversion des données en json
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 
-// Middleware pour parser les données des formulaires
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
@@ -24,66 +22,46 @@ app.get('/login', (req, res) => {
 
 //Route gérant l'inscription 
 app.post('/register', async (req,res) => {
-    const newUser = new User({
+    //D'abord, on récupère les informations saisies dans le corps de la requête(form)
+    const data = {
         prenom: req.body.prenom,
         nom: req.body.nom,
         mdp: req.body.mdp,
         mdp_repeat: req.body.mdp_repeat
-    });
-
-    //On enregistre ces données dans la bdd
-
-    try {
-        const savedUser = await newUser.save();
-        res.status(200).send(`Bonjour ${prenom}${nom}, ton compte est bien créé.`);
-        console.log('Les données du nouvel utilisateur ont été enregistrées avec succès.')
-    } catch (error) {
-        res.status(500).send(`Erreur`)
-        console.log(`L'enregistrement des données du nouvel utilisateur ont échoués.`)
+    };
+    //On vérifie si ce nom est déjà utilisé
+    const existingUser = await collection.findOne({prenom: data.prenom, nom: data.nom});
+    if(existingUser) {
+        res.send(`Cet utilisateur existe déjà. Utilisez un nom différent.`)
+    } else {
+        //Puis on les insère dans la base de donnée
+        const userdata = await collection.insertMany(data);
+        console.log(userdata);
+        // const savedUser = await userdata.save();
+        res.status(200).send(`Bonjour ${data.prenom}${data.nom}, ton compte est bien créé.`);
     }
 });
 
 // Route pour la connexion
 app.post('/login', async (req, res) => {
+    //Bloc try catch tentative de connexion
     try {
-        const user = await User.findOne({ prenom: req.body.prenom, nom: req.body.nom, mdp: req.body.mdp });
-        if (!user) {
-            res.status(400).send('Nom d\'utilisateur ou mot de passe incorrect.');
+        const check = await collection.findOne({ prenom: req.body.prenom, nom: req.body.nom});
+        //On vérifie l'existence de cet utilisateur
+        if (!check) {
+            res.send("Cet utilisateur n'existe pas. Essayez de nouveau.");
         } else {
-            res.status(200).send('Connexion réussie.');
+            res.status(200).send(`Bienvenue ${req.body.prenom}!`);
         }
     } catch (err) {
-        res.status(500).send('Erreur lors de la connexion.');
+        res.status(500).send('Erreur lors de la tentive de connexion à ce compte.');
     }
 });
 
-//Fonction asynchrone permettant la connexion à la base de donnée
-//Puis on peut créer des utilisateurs
-(async ()=>{
-    try {
-        await mongoose.connect("mongodb://localhost/testMongoose");
-        console.log("Connexion réussie avec la base de donnée");
-
-        // // // const result = await User.insertMany([
-        // // //     {
-        // // //         prenom: "Mon prenom",
-        // // //         nom: "Mon nom",
-        // // //         mdp: 1234,
-        // // //         mdp_repeat: 1234
-        // // //     },
-        // // //     {
-        // // //         prenom: "Mon prenom 2",
-        // // //         nom: "Mon nom 2",
-        // // //         mdp: 1234,
-        // // //         mdp_repeat: 1234
-        // // //     }
-        // // ])
-    } catch (error) {
-        console.log(error.message);
-    }
-})();
+//Après la mise en place des tests unitaires, les routes fonctionnent correctement.
 
 
+const port = 3000;
 app.listen(port, () => {
     console.log(`Le serveur est lancé ici : http://localhost:${port}`);
 });
