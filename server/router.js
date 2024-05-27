@@ -40,10 +40,6 @@ const cours = [
     }
 ]
 
-// app.get('/cours/:numeroducours/descr', (req, res) => {
-//     const coursNumero = req.params.numeroducours;
-//     res.send(`Vous avez demandé le cours numéro ${numeroducours}.`);
-// });
 
 app.get('/cours/:numeroducours/descr', (req, res) => {
     const coursNumero = parseInt(req.params.numeroducours, 10);
