@@ -1,4 +1,4 @@
-//Configuration de l'app et importations des modules nécessaires bdd Mongo
+//Configuration de l'app et importations des modules nécessaires Mongo
 
 const mongoose = require('mongoose');
 const connect = mongoose.connect("mongodb://localhost:27017/Express")
